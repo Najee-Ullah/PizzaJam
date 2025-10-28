@@ -1,11 +1,45 @@
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class PlayerInteractions : MonoBehaviour
 {
     [Header("InteractionSettings")]
     [SerializeField] private float interactDistance = 2f;
-    public LayerMask interactable;
+
+    [Header("OutlineLayer")]
+    [SerializeField] private string outlineLayerName = "Outline";
+
+    [SerializeField] private string defaultLayerName = "Default";
+
     [SerializeField] Transform HoldTransform;
+
+    private LayerMask detectionMask;
+    private int defaultLayer;
+    private GameObject currentTarget;
+    private Camera cam;
+
+
+    private InputHandler InputSystem;
+
+    private void Start()
+    {
+        InputSystem = InputHandler.Instance;
+        InputSystem.OnInteractAction += InputSystem_OnInteractAction;
+        detectionMask = LayerMask.GetMask(defaultLayerName,outlineLayerName);
+        defaultLayer = LayerMask.NameToLayer(defaultLayerName);
+        cam = Camera.main;
+    }
+
+    private void InputSystem_OnInteractAction(object sender, System.EventArgs e)
+    {
+        if(currentTarget != null)
+        {
+            if(currentTarget.TryGetComponent<IInteractable>(out IInteractable interactable))
+            {
+                interactable.Interact();
+            }
+        }
+    }
 
     private void Update()
     {
@@ -14,6 +48,34 @@ public class PlayerInteractions : MonoBehaviour
 
     private void HandleInteractions()
     {
+        Ray ray = new Ray(cam.transform.position,cam.transform.forward);
+        RaycastHit hit;
 
+        if (Physics.Raycast(ray, out hit, interactDistance,detectionMask))
+        {
+            GameObject hitObject = hit.collider.gameObject;
+            if (currentTarget != hitObject)
+            {
+                ClearPreviousTarget();
+                SetNewTarget(hitObject);
+            }
+        }
+        else
+        {
+            ClearPreviousTarget();
+        }
+    }
+    private void SetNewTarget(GameObject gameObj)
+    {
+        currentTarget = gameObj;
+        currentTarget.layer = LayerMask.NameToLayer(outlineLayerName);
+    }
+    private void ClearPreviousTarget()
+    {
+        if (currentTarget != null)
+        {
+            currentTarget.layer = defaultLayer;
+            currentTarget = null;
+        }
     }
 }

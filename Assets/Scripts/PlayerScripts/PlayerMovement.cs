@@ -10,9 +10,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float mouseSensitivity = 2f;
     [SerializeField] private float maxLookAngle = 90;
     [SerializeField] private float smoothRotationSpeed = 2f;
-
-    [Header("InputSystemReference")]
-    [SerializeField] private InputHandler InputSystem;
+    [SerializeField] private float minMoveInput = .7f;
 
     [Header("CharacterCollisionDimensions")]
     [SerializeField] private float playerHeight = .3f;
@@ -29,6 +27,13 @@ public class PlayerMovement : MonoBehaviour
     //PlayerMovement
     private Vector3 moveDir;
 
+    private InputHandler InputSystem;
+
+    private void Start()
+    {
+        InputSystem = InputHandler.Instance;
+    }
+
     private void Update()
     {
         HandleLook();
@@ -41,7 +46,7 @@ public class PlayerMovement : MonoBehaviour
 
         //RotateCameraAroundXAxis
         cameraTargetVerticalRotation -= lookInput.y * mouseSensitivity;
-        cameraTargetVerticalRotation = Mathf.Clamp(cameraTargetVerticalRotation, -90f, 90f);
+        cameraTargetVerticalRotation = Mathf.Clamp(cameraTargetVerticalRotation, -maxLookAngle, maxLookAngle);
         cameraVerticalRotation = Mathf.Lerp(cameraVerticalRotation,cameraTargetVerticalRotation,smoothRotationSpeed*Time.deltaTime);
         cam.transform.localEulerAngles = Vector3.right * cameraVerticalRotation;
 
@@ -60,20 +65,23 @@ public class PlayerMovement : MonoBehaviour
         bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDir, movementSpeed * Time.deltaTime);
         if (!canMove)
         {
-            float minMoveInput = 0.5f;
-            Vector3 moveDirX = new Vector3(moveDir.x, 0, 0).normalized;
-            canMove = moveDir.x != minMoveInput && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirX, movementSpeed * Time.deltaTime);
+            //Capsule Cast Params
+            Vector3 start = transform.position;
+            Vector3 end = start + Vector3.up * playerHeight;
+
+            Vector3 moveDirX = new Vector3(moveDir.x, 0, 0);
+            canMove = Mathf.Abs(moveDir.x) >=minMoveInput && !Physics.CapsuleCast(start, end, playerRadius, moveDirX, movementSpeed * Time.deltaTime);
             if (canMove)
             {
-                moveDir = moveDirX;
+                moveDir = moveDirX.normalized;
             }
             else
             {
-                Vector3 moveDirZ = new Vector3(0, 0, moveDir.z).normalized;
-                canMove = moveDir.z != minMoveInput && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirZ, movementSpeed * Time.deltaTime);
+                Vector3 moveDirZ = new Vector3(0, 0, moveDir.z);
+                canMove = Mathf.Abs(moveDir.z) >= minMoveInput && !Physics.CapsuleCast(start, end, playerRadius, moveDirZ, movementSpeed * Time.deltaTime);
                 if (canMove)
                 {
-                    moveDir = moveDirZ;
+                    moveDir = moveDirZ.normalized;
                 }
             }
         }
