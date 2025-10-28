@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.CompilerServices;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -11,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float maxLookAngle = 90;
     [SerializeField] private float smoothRotationSpeed = 2f;
     [SerializeField] private float minMoveInput = .7f;
+    [SerializeField] private LayerMask groundMask;
 
     [Header("CharacterCollisionDimensions")]
     [SerializeField] private float playerHeight = .3f;
@@ -18,6 +21,12 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Camera Reference")]
     [SerializeField] Camera cam;
+
+    [Header("CameraBob Settings")]
+    [SerializeField] private int bobFrequency = 2;
+    [SerializeField] private float bobAmplitude = 1;
+    [SerializeField] private int walkingBobMultiplier = 2;
+
     //CameraRotation Lerp
     private float cameraVerticalRotation = 0f;
     private float cameraTargetVerticalRotation = 0f;
@@ -29,6 +38,11 @@ public class PlayerMovement : MonoBehaviour
 
     private InputHandler InputSystem;
 
+    private float BobPositionOffset;
+    private float bobTimer = 0;
+
+    private bool isWalking = true;
+
     private void Start()
     {
         InputSystem = InputHandler.Instance;
@@ -36,8 +50,32 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        HandleHeadBob();
         HandleLook();
         HandleMovement();
+    }
+
+    private void HandleHeadBob()
+    {
+        float bobAmp = bobAmplitude;
+        float bobFreq = bobFrequency;
+        if(isWalking)
+        {
+            bobFreq *= walkingBobMultiplier/2;
+            bobAmp *= walkingBobMultiplier;
+        }
+
+        if (bobTimer < 180)
+        {
+            BobPositionOffset = Mathf.Sin(bobTimer) * bobAmp * Time.deltaTime;
+        }
+        else
+        {
+            bobTimer = 0;
+        }
+        Vector3 targetPos = cam.transform.position + new Vector3(0, BobPositionOffset, 0);
+        cam.transform.position = targetPos;
+        bobTimer += Time.deltaTime * bobFreq;
     }
 
     private void HandleLook()
@@ -51,7 +89,7 @@ public class PlayerMovement : MonoBehaviour
         cam.transform.localEulerAngles = Vector3.right * cameraVerticalRotation;
 
         //RotateAroundYAxis
-        playerTargetHorizontalRotation = Vector3.up * lookInput.x * mouseSensitivity;
+        playerTargetHorizontalRotation = lookInput.x * mouseSensitivity * Vector3.up;
         playerHorizontalRotation = Vector3.Lerp(playerHorizontalRotation, playerTargetHorizontalRotation, smoothRotationSpeed * Time.deltaTime);
         transform.Rotate(playerHorizontalRotation);
 
@@ -87,9 +125,13 @@ public class PlayerMovement : MonoBehaviour
         }
         if (moveInput.magnitude>0f && canMove)
         {
-            transform.position += moveDir * movementSpeed * Time.deltaTime;
+            isWalking = true;
+            transform.position += movementSpeed * Time.deltaTime * moveDir;
         }
-       
+        else
+        {
+            isWalking = false;
+        }
     }
 
     private void OnDrawGizmos()
