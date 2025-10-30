@@ -68,14 +68,26 @@ public class PlayerInteractions : MonoBehaviour
     private void SetNewTarget(GameObject gameObj)
     {
         currentTarget = gameObj;
-        currentTarget.layer = LayerMask.NameToLayer(outlineLayerName);
+        SetLayerRecursively(currentTarget, LayerMask.NameToLayer(outlineLayerName));
     }
+
     private void ClearPreviousTarget()
     {
         if (currentTarget != null)
         {
-            currentTarget.layer = defaultLayer;
+            SetLayerRecursively(currentTarget,defaultLayer);
             currentTarget = null;
+        }
+    }
+
+    private void SetLayerRecursively(GameObject gameObj,int newLayer)
+    {
+        if (gameObject == null)
+            return;
+        gameObj.layer = newLayer;
+        foreach (Transform child in gameObj.transform)
+        {
+            SetLayerRecursively(child.gameObject, newLayer);
         }
     }
 }

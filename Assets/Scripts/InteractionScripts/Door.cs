@@ -3,16 +3,27 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    [SerializeField] RedButton redButton;
+    [SerializeField] TriggerButton triggerButton;
+    [SerializeField] StateChecker stateChecker;
+
+    private bool isUnlocked = true;
 
     private void Start()
     {
-        if(redButton != null)
-            redButton.OnButtonPressed += RedButton_OnButtonPressed;
+        if (stateChecker != null) 
+            stateChecker.OnCheckStateChanged += Door_OnCheckStateChanged; 
+
+        if(triggerButton != null)
+            triggerButton.OnButtonPressed += RedButton_OnButtonPressed;
+    }
+
+    private void Door_OnCheckStateChanged(object sender, StateChecker.OnCheckStateChangeEventArgs e)
+    {
+        isUnlocked = e.state;
     }
 
     private void RedButton_OnButtonPressed()
     {
-        Debug.Log("OpenDoor");
+        Debug.Log("Door Unlocked : "+isUnlocked);
     }
 }
