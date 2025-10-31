@@ -12,13 +12,14 @@ public class StateChecker : MonoBehaviour
 
     [SerializeField] private List<StateTracker> stateTrackerList;
 
-    public event EventHandler<OnCheckStateChangeEventArgs> OnCheckStateChanged;
+    public static event EventHandler<OnCheckStateChangeEventArgs> OnCheckStateChanged;
+
     public class OnCheckStateChangeEventArgs : EventArgs
     {
-        public bool state;
+        public State state;
     }
 
-
+    private State roomState = State.Original;
     private bool doorsUnlocked = true;
 
     private void Start()
@@ -33,15 +34,15 @@ public class StateChecker : MonoBehaviour
     {
         CheckRoomState();
     }
-
+    //unnecessary event call
     private void CheckRoomState()
     {
-        doorsUnlocked = true;
+        roomState = State.Original;
         foreach (var tracker in stateTrackerList)
         {
-            if(tracker.state != State.Original)
-                doorsUnlocked = false;
+            if (tracker.state != State.Original)
+                roomState = State.Changed;
         }
-        OnCheckStateChanged?.Invoke(this, new OnCheckStateChangeEventArgs { state = doorsUnlocked });
+        OnCheckStateChanged?.Invoke(this, new OnCheckStateChangeEventArgs { state = roomState });
     }
 }
