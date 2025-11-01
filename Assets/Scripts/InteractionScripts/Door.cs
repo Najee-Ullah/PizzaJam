@@ -1,25 +1,35 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class Door : MonoBehaviour
+public class Door : MonoBehaviour,IInteractable
 {
-    [SerializeField] private TriggerButton triggerButton;
-    //[SerializeField] private StateChecker stateChecker;--
-    //[SerializeField] private const string TRIGGER_NAME = "TRIGGER_NAME";
-
-    private Animator animator;
+    [Header("Door Settings")]
+    [SerializeField] private float openAngle = 90f;
+    [SerializeField] private float openSpeed = 2f;
+    [SerializeField] private Transform hinge;
 
     private bool isUnlocked = true;
 
+    private bool isOpen = false;
+    private Quaternion closedRotation;
+    private Quaternion targetRotation;
+
     private void Start()
     {
-        animator = GetComponent<Animator>();
 
-      //  if (stateChecker != null) 
-            StateChecker.OnCheckStateChanged += Door_OnCheckStateChanged; 
+        closedRotation = hinge.localRotation;
+        targetRotation = closedRotation;
 
-        if(triggerButton != null)
-            triggerButton.OnButtonPressed += TriggerButton_OnButtonPressed;
+        StateChecker.OnCheckStateChanged += Door_OnCheckStateChanged;
+    }
+
+    private void Update()
+    {
+        hinge.localRotation = Quaternion.Lerp(
+            hinge.localRotation,
+            targetRotation,
+            Time.deltaTime * openSpeed
+        );
     }
 
     private void Door_OnCheckStateChanged(object sender, StateChecker.OnCheckStateChangeEventArgs e)
@@ -27,9 +37,14 @@ public class Door : MonoBehaviour
         isUnlocked = e.state == StateChecker.State.Original;
     }
 
-    private void TriggerButton_OnButtonPressed()
+    public void Interact()
     {
-        Debug.Log("Door Unlocked : "+isUnlocked);
-        //animator.SetTrigger(TRIGGER_NAME);
+        if (isUnlocked)
+        {
+            isOpen = !isOpen;
+            targetRotation = isOpen
+                ? closedRotation * Quaternion.Euler(0f, openAngle, 0f)
+                : closedRotation;
+        }
     }
 }
