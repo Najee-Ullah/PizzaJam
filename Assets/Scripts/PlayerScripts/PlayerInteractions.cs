@@ -134,10 +134,12 @@ public class PlayerInteractions : MonoBehaviour
             if (heldObject.TryGetComponent<IPickable>(out IPickable pickable))
             {
                 if (targetHold != null)
+                {
                     pickable.Drop(targetHold);
-                heldObject.GetComponent<Collider>().enabled = true;
-                heldObject.transform.localScale = droppedScale;
-                heldObject = null;
+                    heldObject.GetComponent<Collider>().enabled = true;
+                    heldObject.transform.localScale = droppedScale;
+                    heldObject = null;
+                }
             }
         }
     }
