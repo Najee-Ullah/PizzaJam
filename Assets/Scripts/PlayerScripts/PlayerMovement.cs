@@ -13,7 +13,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float maxLookAngle = 90;
     [SerializeField] private float smoothRotationSpeed = 2f;
     [SerializeField] private float minMoveInput = .7f;
-    [SerializeField] private LayerMask groundMask;
+    [SerializeField] private LayerMask collisionMask;
 
     [Header("CharacterCollisionDimensions")]
     [SerializeField] private float playerHeight = .3f;
@@ -51,7 +51,8 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         HandleHeadBob();
-        HandleLook();
+        if(SimGameManager.Instance.IsGamePlaying())
+           HandleLook();
         HandleMovement();
     }
 
@@ -100,7 +101,7 @@ public class PlayerMovement : MonoBehaviour
         Vector2 moveInput = InputSystem.GetMovementInput();
         moveDir = transform.forward * moveInput.y + transform.right * moveInput.x;
 
-        bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDir, movementSpeed * Time.deltaTime);
+        bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDir, movementSpeed * Time.deltaTime,collisionMask);
         if (!canMove)
         {
             //Capsule Cast Params
@@ -108,7 +109,7 @@ public class PlayerMovement : MonoBehaviour
             Vector3 end = start + Vector3.up * playerHeight;
 
             Vector3 moveDirX = new Vector3(moveDir.x, 0, 0);
-            canMove = Mathf.Abs(moveDir.x) >=minMoveInput && !Physics.CapsuleCast(start, end, playerRadius, moveDirX, movementSpeed * Time.deltaTime);
+            canMove = Mathf.Abs(moveDir.x) >=minMoveInput && !Physics.CapsuleCast(start, end, playerRadius, moveDirX, movementSpeed * Time.deltaTime,collisionMask);
             if (canMove)
             {
                 moveDir = moveDirX.normalized;
@@ -116,7 +117,7 @@ public class PlayerMovement : MonoBehaviour
             else
             {
                 Vector3 moveDirZ = new Vector3(0, 0, moveDir.z);
-                canMove = Mathf.Abs(moveDir.z) >= minMoveInput && !Physics.CapsuleCast(start, end, playerRadius, moveDirZ, movementSpeed * Time.deltaTime);
+                canMove = Mathf.Abs(moveDir.z) >= minMoveInput && !Physics.CapsuleCast(start, end, playerRadius, moveDirZ, movementSpeed * Time.deltaTime,collisionMask);
                 if (canMove)
                 {
                     moveDir = moveDirZ.normalized;

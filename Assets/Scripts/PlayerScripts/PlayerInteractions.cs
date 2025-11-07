@@ -1,5 +1,4 @@
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class PlayerInteractions : MonoBehaviour
 {
@@ -13,8 +12,10 @@ public class PlayerInteractions : MonoBehaviour
 
     [Header("Hold Settings")]
     [SerializeField] Transform HoldTransform;
-    [SerializeField] private Vector3 heldScale = Vector3.one * 0.1f;
-    [SerializeField] private Vector3 droppedScale = Vector3.one * 0.3f;
+    [SerializeField] Vector3 heldScale = new Vector3(.1f,.1f,.1f);
+
+    [Header("PlayerInventory")]
+    [SerializeField] private Inventory playerInventory;
 
     private LayerMask detectionMask;
     private int defaultLayer;
@@ -34,6 +35,7 @@ public class PlayerInteractions : MonoBehaviour
     {
         InputSystem = InputHandler.Instance;
         InputSystem.OnInteractAction += InputSystem_OnInteractAction;
+
         detectionMask = LayerMask.GetMask(defaultLayerName, outlineLayerName);
         defaultLayer = LayerMask.NameToLayer(defaultLayerName);
         cam = Camera.main;
@@ -60,6 +62,7 @@ public class PlayerInteractions : MonoBehaviour
 
     private void Update()
     {
+        if(SimGameManager.Instance.IsGamePlaying())
             HandleInteractions();
     }
 
@@ -99,7 +102,7 @@ public class PlayerInteractions : MonoBehaviour
 
     private void SetLayerRecursively(GameObject gameObj, int newLayer)
     {
-        if (gameObject == null)
+        if (gameObj == null)
             return;
         gameObj.layer = newLayer;
         foreach (Transform child in gameObj.transform)
@@ -116,12 +119,12 @@ public class PlayerInteractions : MonoBehaviour
 
         if (currentTarget.TryGetComponent<IPickable>(out IPickable pickable))
         {
-            pickable.PickUp(HoldTransform);
-            currentTarget.GetComponent<Collider>().enabled = false;
-            heldObject = currentTarget;
-            heldObject.transform.localScale = heldScale;
-            //hideOutlines
-            ClearPreviousTarget();
+            
+            if (playerInventory != null)
+            {
+                playerInventory.AddItem(pickable.ItemData);
+            }
+            Destroy(currentTarget);
         }
     }
     private void TryDrop()
@@ -129,18 +132,39 @@ public class PlayerInteractions : MonoBehaviour
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, interactDistance))
         {
-            Transform targetHold = hit.collider.GetComponent<HoldTransformMarker>()?.HoldTransform;
 
             if (heldObject.TryGetComponent<IPickable>(out IPickable pickable))
             {
-                if (targetHold != null)
-                {
-                    pickable.Drop(targetHold);
-                    heldObject.GetComponent<Collider>().enabled = true;
-                    heldObject.transform.localScale = droppedScale;
                     heldObject = null;
-                }
+                    if (playerInventory != null)
+                    {
+                        playerInventory.RemoveItem(pickable.ItemData);
+                    }
             }
         }
+    }
+    private void SetHeldObject(ItemData item)
+    {
+        if (item == null || item.itemPrefab == null)
+            return;
+
+        GameObject itemInstance = Instantiate(item.itemPrefab, HoldTransform);
+        itemInstance.transform.localPosition = Vector3.zero;
+        itemInstance.transform.localRotation = Quaternion.identity;
+        itemInstance.transform.localScale = heldScale;
+
+        if (itemInstance.TryGetComponent<Collider>(out Collider col))
+            col.enabled = false;
+        if (itemInstance.TryGetComponent<Rigidbody>(out Rigidbody rb))
+            rb.useGravity = false;
+
+        heldObject = itemInstance;
+    }
+
+    private void RemoveHeldObject()
+    {
+        if (heldObject == null) return;
+        Destroy(heldObject);
+        heldObject = null;
     }
 }

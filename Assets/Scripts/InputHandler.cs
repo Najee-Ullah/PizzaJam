@@ -7,6 +7,7 @@ public class InputHandler : MonoBehaviour
 {
     public event EventHandler OnInteractAction;
     public event EventHandler OnPauseAction;
+    public event EventHandler OnInventoryToggleAction;
 
     public static InputHandler Instance;
 
@@ -16,7 +17,7 @@ public class InputHandler : MonoBehaviour
     {
         if (Instance != null)
         {
-            Destroy(gameObject);
+            Destroy(Instance);
         }
         Instance = this;
 
@@ -24,6 +25,12 @@ public class InputHandler : MonoBehaviour
         PlayerInputActions.Player.Enable();
         PlayerInputActions.Player.Interact.performed += Interact_performed;
         PlayerInputActions.Player.Pause.performed += Pause_performed;
+        PlayerInputActions.Player.InventoryToggle.performed += InventoryToggle_performed;
+    }
+
+    private void InventoryToggle_performed(InputAction.CallbackContext obj)
+    {
+        OnInventoryToggleAction?.Invoke(this, EventArgs.Empty);
     }
 
     private void Pause_performed(InputAction.CallbackContext obj)
