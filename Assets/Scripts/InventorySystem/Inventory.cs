@@ -8,6 +8,7 @@ public class Inventory : MonoBehaviour
     [SerializeField] private int inventorySlotsAllowed = 4;
 
     public event EventHandler<OnItemsChangedArgs> OnItemAdded;
+    public event EventHandler<OnItemsChangedArgs> OnItemHold;
     public event EventHandler<OnItemsChangedArgs> OnItemRemoved;
     public class OnItemsChangedArgs : EventArgs
     {
@@ -43,4 +44,15 @@ public class Inventory : MonoBehaviour
     {
         return inventorySlotsAllowed;
     }
+
+    public void OnHoldClicked(ItemData item)
+    {
+        OnItemHold?.Invoke(this, new OnItemsChangedArgs { changedItem = item });
+    }
+
+    public void OnDropClicked(ItemData item)
+    {
+        RemoveItem(item);
+    }
+
 }

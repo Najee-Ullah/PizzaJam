@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class SimGameManager : MonoBehaviour
 {
-    public static SimGameManager Instance;
+    public static SimGameManager Instance = null;
 
     public enum GameState
     {
@@ -13,7 +13,7 @@ public class SimGameManager : MonoBehaviour
 
     public GameState currentState;
 
-    private void Start()
+    private void Awake()
     {
         if (Instance != null)
         {

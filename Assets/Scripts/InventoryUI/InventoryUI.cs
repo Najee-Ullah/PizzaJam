@@ -79,7 +79,6 @@ public class InventoryUI : MonoBehaviour
             if (boxUI.ItemData == e.changedItem)
             {
                 boxUI.ClearBox(); 
-                inventoryBoxes.Remove(boxTransform);
                 break;
             }
         }
@@ -122,12 +121,12 @@ public class InventoryUI : MonoBehaviour
 
     private void OnHoldClicked(ItemData item)
     {
-        Debug.Log($"Holding {item.itemName}");
+        targetInventory.OnHoldClicked(item);
     }
 
     private void OnDropClicked(ItemData item)
     {
-        Debug.Log($"Dropping {item.itemName}");
+        targetInventory.OnDropClicked(item);
     }
 
 

@@ -13,6 +13,7 @@ public class PlayerInteractions : MonoBehaviour
     [Header("Hold Settings")]
     [SerializeField] Transform HoldTransform;
     [SerializeField] Vector3 heldScale = new Vector3(.1f,.1f,.1f);
+    [SerializeField] Vector3 originalScale = new Vector3(.3f, .3f, .3f);
 
     [Header("PlayerInventory")]
     [SerializeField] private Inventory playerInventory;
@@ -22,7 +23,7 @@ public class PlayerInteractions : MonoBehaviour
     private GameObject currentTarget;
     private Camera cam;
 
-    private bool isHolding
+    private bool IsHolding
     {
         get { return heldObject != null; }
     }
@@ -39,6 +40,26 @@ public class PlayerInteractions : MonoBehaviour
         detectionMask = LayerMask.GetMask(defaultLayerName, outlineLayerName);
         defaultLayer = LayerMask.NameToLayer(defaultLayerName);
         cam = Camera.main;
+
+        playerInventory.OnItemHold += PlayerInventory_OnItemHold;
+        playerInventory.OnItemRemoved += PlayerInventory_OnItemRemoved;
+    }
+
+
+    private void Update()
+    {
+        if(SimGameManager.Instance.IsGamePlaying())
+            HandleInteractions();
+    }
+
+    private void PlayerInventory_OnItemRemoved(object sender, Inventory.OnItemsChangedArgs e)
+    {
+        DropItem(e.changedItem);
+    }
+
+    private void PlayerInventory_OnItemHold(object sender, Inventory.OnItemsChangedArgs e)
+    {
+        SetHeldObject(e.changedItem);
     }
 
     private void InputSystem_OnInteractAction(object sender, System.EventArgs e)
@@ -49,23 +70,9 @@ public class PlayerInteractions : MonoBehaviour
             {
                 interactable.Interact();
             }
-            if (!isHolding)
-            {
-                TryPickUp();
-            }
-            else
-            {
-                TryDrop();
-            }
+            TryPickUp();
         }
     }
-
-    private void Update()
-    {
-        if(SimGameManager.Instance.IsGamePlaying())
-            HandleInteractions();
-    }
-
     private void HandleInteractions()
     {
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
@@ -127,21 +134,21 @@ public class PlayerInteractions : MonoBehaviour
             Destroy(currentTarget);
         }
     }
-    private void TryDrop()
+    private void DropItem(ItemData item)
     {
-        Ray ray = new Ray(cam.transform.position, cam.transform.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, interactDistance))
-        {
+        if (IsHolding)
+            RemoveHeldObject();
 
-            if (heldObject.TryGetComponent<IPickable>(out IPickable pickable))
-            {
-                    heldObject = null;
-                    if (playerInventory != null)
-                    {
-                        playerInventory.RemoveItem(pickable.ItemData);
-                    }
-            }
-        }
+        GameObject itemInstance = Instantiate(item.itemPrefab,HoldTransform.position,Quaternion.identity);
+        itemInstance.transform.localRotation = Quaternion.identity;
+        itemInstance.transform.localScale = originalScale;
+
+        if (itemInstance.TryGetComponent<Collider>(out Collider col))
+            col.enabled = true;
+        if (itemInstance.TryGetComponent<Rigidbody>(out Rigidbody rb))
+            rb.useGravity = true;
+        Debug.Log("dropped");
+
     }
     private void SetHeldObject(ItemData item)
     {
@@ -166,5 +173,6 @@ public class PlayerInteractions : MonoBehaviour
         if (heldObject == null) return;
         Destroy(heldObject);
         heldObject = null;
+        Debug.Log("removed");
     }
 }
