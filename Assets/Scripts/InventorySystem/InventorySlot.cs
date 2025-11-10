@@ -4,9 +4,9 @@ using UnityEngine;
 [System.Serializable]
 public class InventorySlot 
 {
-    public ItemData itemData;
+    public ItemDataSO itemData;
 
-    public InventorySlot(ItemData itemData)
+    public InventorySlot(ItemDataSO itemData)
     {
         this.itemData = itemData;
     }

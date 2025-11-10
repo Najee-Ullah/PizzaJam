@@ -1,9 +1,7 @@
-﻿using JetBrains.Annotations;
+﻿using NUnit.Framework.Interfaces;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using static UnityEditor.Progress;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -30,6 +28,7 @@ public class InventoryUI : MonoBehaviour
 
         targetInventory.OnItemAdded += TargetInventory_OnItemAdded;
         targetInventory.OnItemRemoved += TargetInventory_OnItemRemoved;
+        targetInventory.OnItemsReplaced += TargetInventory_OnItemsReplaced;
 
         InitializeInventoryBoxes();
         Hide();
@@ -58,6 +57,8 @@ public class InventoryUI : MonoBehaviour
         InventoryVisual.gameObject.SetActive(false);
         SimGameManager.Instance.StartGame();
 
+        ItemCombineManager.Instance.ResetCombine();
+
     }
 
     private void InitializeInventoryBoxes()
@@ -84,12 +85,27 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+    private void TargetInventory_OnItemsReplaced(object sender, Inventory.OnItemsReplacedArgs e)
+    {
+        foreach (Transform boxTransform in inventoryBoxes)
+        {
+            InventoryBoxUI boxUI = boxTransform.GetComponent<InventoryBoxUI>();
+
+            if (boxUI.ItemData == e.replacedItem)
+            {
+                boxUI.ClearBox();
+                break;
+            }
+        }
+        AddItem(e.replacingItem);
+    }
+
     private void TargetInventory_OnItemAdded(object sender, Inventory.OnItemsChangedArgs e)
     {
         AddItem(e.changedItem);
     }
 
-    private void AddItem(ItemData itemData)
+    private void AddItem(ItemDataSO itemData)
     {
         foreach (Transform boxTransform in inventoryBoxes)
         {
@@ -105,29 +121,37 @@ public class InventoryUI : MonoBehaviour
 
     }
 
-    private void OnInventoryBoxClicked(ItemData itemData)
+
+    private void OnInventoryBoxClicked(ItemDataSO itemData)
     {
         titleBox.text = itemData.itemName;
         descriptionBox.text = itemData.itemDescription;
+        if(ItemCombineManager.Instance.IsActive())
+            targetInventory.OnCombineClicked(itemData);
+
     }
 
-    private void OnInventoryBoxRightClicked(ItemData itemData,Transform boxTransform)
+    private void OnInventoryBoxRightClicked(ItemDataSO itemData,Transform boxTransform)
     {
         //Debug.Log($"Right-clicked (drop): {itemData.itemName}");
 
         //targetInventory.RemoveItem(itemData);
-        ContextMenuPrefab.GetComponent<InventoryContextMenu>().ShowAtSlot(boxTransform, itemData, OnHoldClicked, OnDropClicked);
+        ContextMenuPrefab.GetComponent<InventoryContextMenu>().ShowAtSlot(boxTransform, itemData, OnHoldClicked, OnDropClicked,OnCombineClick);
     }
 
-    private void OnHoldClicked(ItemData item)
+    private void OnHoldClicked(ItemDataSO item)
     {
         targetInventory.OnHoldClicked(item);
     }
 
-    private void OnDropClicked(ItemData item)
+    private void OnDropClicked(ItemDataSO item)
     {
         targetInventory.OnDropClicked(item);
     }
 
+    private void OnCombineClick(ItemDataSO item)
+    {
+        targetInventory.OnCombineClicked(item);
+    }
 
 }

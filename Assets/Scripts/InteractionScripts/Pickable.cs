@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class Pickable : MonoBehaviour, IPickable
 {
-    [SerializeField] private ItemData itemData;
+    [SerializeField] private ItemDataSO itemData;
 
-    [HideInInspector] public ItemData ItemData => itemData;
+    [HideInInspector] public ItemDataSO ItemData => itemData;
 
     public void Drop(Transform newParent)
     {
@@ -21,7 +21,7 @@ public class Pickable : MonoBehaviour, IPickable
         transform.localRotation = Quaternion.identity;
     }
 
-    private ItemData GetItemData()
+    private ItemDataSO GetItemData()
     {
         return itemData;
     }

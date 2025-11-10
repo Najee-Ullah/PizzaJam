@@ -1,7 +1,9 @@
-﻿using System;
+﻿using NUnit.Framework.Interfaces;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class Inventory : MonoBehaviour
 {
@@ -10,16 +12,21 @@ public class Inventory : MonoBehaviour
     public event EventHandler<OnItemsChangedArgs> OnItemAdded;
     public event EventHandler<OnItemsChangedArgs> OnItemHold;
     public event EventHandler<OnItemsChangedArgs> OnItemRemoved;
+    public event EventHandler<OnItemsReplacedArgs> OnItemsReplaced;
     public class OnItemsChangedArgs : EventArgs
     {
-        public ItemData changedItem;
+        public ItemDataSO changedItem;
     }
-
+    public class OnItemsReplacedArgs : EventArgs
+    {
+        public ItemDataSO replacingItem;
+        public ItemDataSO replacedItem;
+    }
     public List<InventorySlot> inventorySlots = new List<InventorySlot>();
 
     private int itemIdNo = 0;
 
-    public void AddItem(ItemData item)
+    public void AddItem(ItemDataSO item)
     {
             if (inventorySlots.Count < inventorySlotsAllowed)
             {
@@ -29,7 +36,7 @@ public class Inventory : MonoBehaviour
             }
     }
 
-    public void RemoveItem(ItemData item)
+    public void RemoveItem(ItemDataSO item)
     {
         InventorySlot existingSlot = inventorySlots.Find(x => x.itemData == item);
         if (existingSlot != null)
@@ -40,19 +47,44 @@ public class Inventory : MonoBehaviour
 
     }
 
+    public void ReplaceItem(ItemDataSO itemDataA, ItemDataSO itemDataB)
+    {
+        InventorySlot existingSlot = inventorySlots.Find(x => x.itemData == itemDataA);
+        if (existingSlot != null)
+        {
+            inventorySlots.Remove(existingSlot);
+            inventorySlots.Add(new InventorySlot(itemDataB));
+            OnItemsReplaced.Invoke(this, new OnItemsReplacedArgs { replacedItem = itemDataA,replacingItem = itemDataB });
+        }
+
+    }
     public int GetInventorySlotsAmount()
     {
         return inventorySlotsAllowed;
     }
 
-    public void OnHoldClicked(ItemData item)
+    public void OnHoldClicked(ItemDataSO item)
     {
         OnItemHold?.Invoke(this, new OnItemsChangedArgs { changedItem = item });
     }
 
-    public void OnDropClicked(ItemData item)
+    public void OnDropClicked(ItemDataSO item)
     {
         RemoveItem(item);
     }
-
+    public void OnCombineClicked(ItemDataSO item)
+    {
+        if (ItemCombineManager.Instance.IsActive())
+        {
+            UpdateItemDataSO(item);
+        }
+        else
+        {
+            ItemCombineManager.Instance.CombineStart(item);
+        }
+    }
+    private void UpdateItemDataSO(ItemDataSO item)
+    {
+        ReplaceItem(item, ItemCombineManager.Instance.CombineEnd(item));
+    }
 }

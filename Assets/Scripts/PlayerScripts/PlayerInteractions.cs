@@ -134,7 +134,7 @@ public class PlayerInteractions : MonoBehaviour
             Destroy(currentTarget);
         }
     }
-    private void DropItem(ItemData item)
+    private void DropItem(ItemDataSO item)
     {
         if (IsHolding)
             RemoveHeldObject();
@@ -150,7 +150,7 @@ public class PlayerInteractions : MonoBehaviour
         Debug.Log("dropped");
 
     }
-    private void SetHeldObject(ItemData item)
+    private void SetHeldObject(ItemDataSO item)
     {
         if (item == null || item.itemPrefab == null)
             return;

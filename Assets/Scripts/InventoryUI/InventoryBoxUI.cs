@@ -8,18 +8,18 @@ public class InventoryBoxUI : MonoBehaviour,IPointerClickHandler
 {
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private Image iconImage;
-    private ItemData itemData;
+    private ItemDataSO itemData;
 
-    private Action<ItemData> onLeftClick;
-    private Action<ItemData, Transform> onRightClick;
+    private Action<ItemDataSO> onLeftClick;
+    private Action<ItemDataSO, Transform> onRightClick;
 
-    public ItemData ItemData => itemData;
+    public ItemDataSO ItemData => itemData;
 
     private void Start()
     {
     }
 
-    public void Initialize(ItemData data,Action<ItemData> leftClick,Action<ItemData,Transform> rightClick = null)
+    public void Initialize(ItemDataSO data,Action<ItemDataSO> leftClick,Action<ItemDataSO,Transform> rightClick = null)
     {
         itemData = data;
         onLeftClick = leftClick;
@@ -53,4 +53,5 @@ public class InventoryBoxUI : MonoBehaviour,IPointerClickHandler
             onRightClick?.Invoke(itemData,transform);
         }
     }
+
 }
