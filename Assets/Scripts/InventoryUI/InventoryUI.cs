@@ -73,31 +73,28 @@ public class InventoryUI : MonoBehaviour
 
     private void TargetInventory_OnItemRemoved(object sender, Inventory.OnItemsChangedArgs e)
     {
-        foreach (Transform boxTransform in inventoryBoxes)
-        {
-            InventoryBoxUI boxUI = boxTransform.GetComponent<InventoryBoxUI>();
-
-            if (boxUI.ItemData == e.changedItem)
-            {
-                boxUI.ClearBox(); 
-                break;
-            }
-        }
+        RemoveUI(e.changedItem);
     }
 
     private void TargetInventory_OnItemsReplaced(object sender, Inventory.OnItemsReplacedArgs e)
+    {
+        RemoveUI(e.replacedItem1);
+        RemoveUI(e.replacedItem2);
+        AddItem(e.replacingItem);
+    }
+
+    private void RemoveUI(ItemDataSO itemData)
     {
         foreach (Transform boxTransform in inventoryBoxes)
         {
             InventoryBoxUI boxUI = boxTransform.GetComponent<InventoryBoxUI>();
 
-            if (boxUI.ItemData == e.replacedItem)
+            if (boxUI.ItemData == itemData)
             {
                 boxUI.ClearBox();
                 break;
             }
         }
-        AddItem(e.replacingItem);
     }
 
     private void TargetInventory_OnItemAdded(object sender, Inventory.OnItemsChangedArgs e)
@@ -131,12 +128,9 @@ public class InventoryUI : MonoBehaviour
 
     }
 
-    private void OnInventoryBoxRightClicked(ItemDataSO itemData,Transform boxTransform)
+    private void OnInventoryBoxRightClicked(ItemDataSO itemData,Transform anchorTransform)
     {
-        //Debug.Log($"Right-clicked (drop): {itemData.itemName}");
-
-        //targetInventory.RemoveItem(itemData);
-        ContextMenuPrefab.GetComponent<InventoryContextMenu>().ShowAtSlot(boxTransform, itemData, OnHoldClicked, OnDropClicked,OnCombineClick);
+        ContextMenuPrefab.GetComponent<InventoryContextMenu>().ShowAtSlot(anchorTransform, itemData, OnHoldClicked, OnDropClicked,OnCombineClick);
     }
 
     private void OnHoldClicked(ItemDataSO item)

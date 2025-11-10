@@ -11,7 +11,7 @@ public class ItemCombineManager : MonoBehaviour
 
     private ItemDataSO firstItemSelected;
 
-    private void Start()
+    private void Awake()
     {
         if(Instance!= null)
         {
@@ -30,14 +30,21 @@ public class ItemCombineManager : MonoBehaviour
         firstItemSelected = null;
     }
 
+    public ItemDataSO GetFirstItem()
+    {
+        return firstItemSelected;
+    }
+
     public void CombineStart(ItemDataSO firstItem)
     {
         ResetCombine();
         firstItemSelected = firstItem;
+        Debug.Log("Combine Start");
     }
 
     public ItemDataSO CombineEnd(ItemDataSO item)
     {
+        Debug.Log("Combine End");
         if (firstItemSelected != null && item != firstItemSelected)
         {
             return TryCombine(firstItemSelected, item);

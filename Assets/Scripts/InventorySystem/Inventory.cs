@@ -1,9 +1,6 @@
-﻿using NUnit.Framework.Interfaces;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class Inventory : MonoBehaviour
 {
@@ -20,7 +17,8 @@ public class Inventory : MonoBehaviour
     public class OnItemsReplacedArgs : EventArgs
     {
         public ItemDataSO replacingItem;
-        public ItemDataSO replacedItem;
+        public ItemDataSO replacedItem1;
+        public ItemDataSO replacedItem2;
     }
     public List<InventorySlot> inventorySlots = new List<InventorySlot>();
 
@@ -47,14 +45,16 @@ public class Inventory : MonoBehaviour
 
     }
 
-    public void ReplaceItem(ItemDataSO itemDataA, ItemDataSO itemDataB)
+    public void ReplaceItem(ItemDataSO itemDataA, ItemDataSO itemDataB,ItemDataSO itemDataC)
     {
-        InventorySlot existingSlot = inventorySlots.Find(x => x.itemData == itemDataA);
-        if (existingSlot != null)
+        InventorySlot existingSlotA = inventorySlots.Find(x => x.itemData == itemDataA);
+        InventorySlot existingSlotB = inventorySlots.Find(x => x.itemData == itemDataB);
+        if (existingSlotA != null && existingSlotB != null)
         {
-            inventorySlots.Remove(existingSlot);
-            inventorySlots.Add(new InventorySlot(itemDataB));
-            OnItemsReplaced.Invoke(this, new OnItemsReplacedArgs { replacedItem = itemDataA,replacingItem = itemDataB });
+            inventorySlots.Remove(existingSlotA);
+            inventorySlots.Remove(existingSlotB);
+            inventorySlots.Add(new InventorySlot(itemDataC));
+            OnItemsReplaced.Invoke(this, new OnItemsReplacedArgs { replacedItem1 = itemDataA,replacedItem2 = itemDataB,replacingItem = itemDataC });
         }
 
     }
@@ -72,19 +72,20 @@ public class Inventory : MonoBehaviour
     {
         RemoveItem(item);
     }
-    public void OnCombineClicked(ItemDataSO item)
+    public void OnCombineClicked(ItemDataSO itemA)
     {
         if (ItemCombineManager.Instance.IsActive())
         {
-            UpdateItemDataSO(item);
+            ItemDataSO itemB = ItemCombineManager.Instance.GetFirstItem();
+            UpdateItemDataSO(itemA,itemB);
         }
         else
         {
-            ItemCombineManager.Instance.CombineStart(item);
+            ItemCombineManager.Instance.CombineStart(itemA);
         }
     }
-    private void UpdateItemDataSO(ItemDataSO item)
+    private void UpdateItemDataSO(ItemDataSO itemA,ItemDataSO itemB)
     {
-        ReplaceItem(item, ItemCombineManager.Instance.CombineEnd(item));
+        ReplaceItem(itemA,itemB, ItemCombineManager.Instance.CombineEnd(itemA));
     }
 }

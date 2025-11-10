@@ -140,15 +140,7 @@ public class PlayerInteractions : MonoBehaviour
             RemoveHeldObject();
 
         GameObject itemInstance = Instantiate(item.itemPrefab,HoldTransform.position,Quaternion.identity);
-        itemInstance.transform.localRotation = Quaternion.identity;
-        itemInstance.transform.localScale = originalScale;
-
-        if (itemInstance.TryGetComponent<Collider>(out Collider col))
-            col.enabled = true;
-        if (itemInstance.TryGetComponent<Rigidbody>(out Rigidbody rb))
-            rb.useGravity = true;
-        Debug.Log("dropped");
-
+        ToggleObject(itemInstance, true);
     }
     private void SetHeldObject(ItemDataSO item)
     {
@@ -156,16 +148,32 @@ public class PlayerInteractions : MonoBehaviour
             return;
 
         GameObject itemInstance = Instantiate(item.itemPrefab, HoldTransform);
-        itemInstance.transform.localPosition = Vector3.zero;
-        itemInstance.transform.localRotation = Quaternion.identity;
-        itemInstance.transform.localScale = heldScale;
 
-        if (itemInstance.TryGetComponent<Collider>(out Collider col))
-            col.enabled = false;
-        if (itemInstance.TryGetComponent<Rigidbody>(out Rigidbody rb))
-            rb.useGravity = false;
+        ToggleObject(itemInstance, false);
 
         heldObject = itemInstance;
+    }
+
+    private void ToggleObject(GameObject itemInstance,bool active)
+    {
+        itemInstance.transform.localRotation = Quaternion.identity;
+        if (active)
+        {
+            itemInstance.transform.localScale = originalScale;
+            if (itemInstance.TryGetComponent<Collider>(out Collider col))
+                col.enabled = true;
+            if (itemInstance.TryGetComponent<Rigidbody>(out Rigidbody rb))
+                rb.useGravity = true;
+        }
+        else
+        {
+            itemInstance.transform.localScale = heldScale;
+            if (itemInstance.TryGetComponent<Collider>(out Collider col))
+                col.enabled = false;
+            if (itemInstance.TryGetComponent<Rigidbody>(out Rigidbody rb))
+                rb.useGravity = false;
+            itemInstance.transform.localPosition = Vector3.zero;
+        }
     }
 
     private void RemoveHeldObject()
@@ -173,6 +181,5 @@ public class PlayerInteractions : MonoBehaviour
         if (heldObject == null) return;
         Destroy(heldObject);
         heldObject = null;
-        Debug.Log("removed");
     }
 }

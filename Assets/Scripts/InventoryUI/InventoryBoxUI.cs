@@ -8,6 +8,7 @@ public class InventoryBoxUI : MonoBehaviour,IPointerClickHandler
 {
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private Image iconImage;
+    [SerializeField] private Transform ContextMenuAnchor;
     private ItemDataSO itemData;
 
     private Action<ItemDataSO> onLeftClick;
@@ -50,7 +51,7 @@ public class InventoryBoxUI : MonoBehaviour,IPointerClickHandler
         }
         else if (eventData.button == PointerEventData.InputButton.Right)
         {
-            onRightClick?.Invoke(itemData,transform);
+            onRightClick?.Invoke(itemData,ContextMenuAnchor.transform);
         }
     }
 

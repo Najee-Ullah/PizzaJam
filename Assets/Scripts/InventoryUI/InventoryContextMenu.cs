@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class InventoryContextMenu : MonoBehaviour
 {
+    [Header("UI References")]
     [SerializeField] Button holdButton;
     [SerializeField] Button dropButton;
     [SerializeField] Button combineButton;
@@ -46,15 +47,16 @@ public class InventoryContextMenu : MonoBehaviour
     {
         Visual.SetActive(false);
     }
-    public void ShowAtSlot(Transform slotTransform, ItemDataSO item, Action<ItemDataSO> holdAction, Action<ItemDataSO> dropAction,Action<ItemDataSO> onCombineAction)
+    public void ShowAtSlot(Transform slotTransform, ItemDataSO item, Action<ItemDataSO> holdAction, Action<ItemDataSO> dropAction, Action<ItemDataSO> onCombineAction)
     {
         currentItem = item;
         onHold = holdAction;
         onDrop = dropAction;
         onCombine = onCombineAction;
 
-        //Vector3 screenPos = RectTransformUtility.WorldToScreenPoint(Camera.main, slotTransform.position);
-        //transform.position = screenPos;
+
+        transform.SetParent(slotTransform,false);
+        transform.localPosition = Vector3.zero;
 
         Show();
     }
