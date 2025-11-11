@@ -30,7 +30,10 @@ public class InputHandler : MonoBehaviour
 
     private void InventoryToggle_performed(InputAction.CallbackContext obj)
     {
-        OnInventoryToggleAction?.Invoke(this, EventArgs.Empty);
+        if (SimGameManager.Instance.IsGamePlaying())
+        {
+            OnInventoryToggleAction?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     private void Pause_performed(InputAction.CallbackContext obj)
