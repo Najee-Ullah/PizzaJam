@@ -4,11 +4,12 @@ using TMPro;
 using UnityEngine.EventSystems;
 using System;
 
-public class InventoryBoxUI : MonoBehaviour,IPointerClickHandler
+public class InventoryBoxUI : MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler
 {
-    [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private Image iconImage;
     [SerializeField] private Transform ContextMenuAnchor;
+    [SerializeField] private GameObject RightClickIcon;
+    [SerializeField] private GameObject LeftClickIcon;
     private ItemDataSO itemData;
 
     private Action<ItemDataSO> onLeftClick;
@@ -18,6 +19,8 @@ public class InventoryBoxUI : MonoBehaviour,IPointerClickHandler
 
     private void Start()
     {
+        LeftClickIcon.SetActive(true);
+        RightClickIcon.SetActive(false);
     }
 
     public void Initialize(ItemDataSO data,Action<ItemDataSO> leftClick,Action<ItemDataSO,Transform> rightClick = null)
@@ -26,17 +29,14 @@ public class InventoryBoxUI : MonoBehaviour,IPointerClickHandler
         onLeftClick = leftClick;
         onRightClick = rightClick;
 
-        if (nameText != null)
-            nameText.text = itemData.itemName;
-
         if (iconImage != null)
-            iconImage.sprite = itemData.itemIcon; 
+            if(itemData.itemIcon != null)
+                 iconImage.sprite = itemData.itemIcon; 
     }
 
     public void ClearBox()
     {
         itemData = null;
-        if (nameText != null) nameText.text = "";
         if (iconImage != null) iconImage.sprite = null;
     }
 
@@ -55,4 +55,15 @@ public class InventoryBoxUI : MonoBehaviour,IPointerClickHandler
         }
     }
 
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        LeftClickIcon.SetActive(false);
+        RightClickIcon.SetActive(true);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        RightClickIcon.SetActive(false);
+        LeftClickIcon.SetActive(true);
+    }
 }
