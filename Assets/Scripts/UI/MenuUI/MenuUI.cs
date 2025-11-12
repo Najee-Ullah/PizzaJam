@@ -12,8 +12,12 @@ public class MenuUI : MonoBehaviour
 
     private bool IsActive{ get { return (Visual.activeSelf); } }
 
+    private SimGameManager simManager;
+
     private void Start()
     {
+        simManager = SimGameManager.Instance;
+
         InputHandler.Instance.OnPauseAction += Instance_OnPauseAction;
 
         StartButton.onClick.AddListener(() => { UnPause(); });
@@ -39,13 +43,15 @@ public class MenuUI : MonoBehaviour
     {
         Show();
         Time.timeScale = 0;
-        SimGameManager.Instance.PauseGame();
+        simManager.PauseGame();
+        simManager.SetMenuState(true);
     }
 
     private void UnPause()
     {
         Time.timeScale = 1;
-        SimGameManager.Instance.StartGame();
+        simManager.StartGame();
+        simManager.SetMenuState(false);
         Hide();
     }
 

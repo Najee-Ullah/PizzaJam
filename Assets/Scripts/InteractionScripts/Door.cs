@@ -14,6 +14,8 @@ public class Door : MonoBehaviour,IInteractable
     private Quaternion closedRotation;
     private Quaternion targetRotation;
 
+    public ItemDataSO ItemData => throw new System.NotImplementedException();
+
     private void Start()
     {
 

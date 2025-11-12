@@ -30,10 +30,8 @@ public class InputHandler : MonoBehaviour
 
     private void InventoryToggle_performed(InputAction.CallbackContext obj)
     {
-        if (SimGameManager.Instance.IsGamePlaying())
-        {
+        if(!SimGameManager.Instance.IsMainMenuActive())
             OnInventoryToggleAction?.Invoke(this, EventArgs.Empty);
-        }
     }
 
     private void Pause_performed(InputAction.CallbackContext obj)
@@ -53,6 +51,10 @@ public class InputHandler : MonoBehaviour
     public Vector2 GetMouseInput()
     {
         return PlayerInputActions.Player.Look.ReadValue<Vector2>();
+    }
+    public string GetInteractBindingString()
+    {
+        return PlayerInputActions.Player.Interact.GetBindingDisplayString(0);
     }
 
     private void OnDestroy()

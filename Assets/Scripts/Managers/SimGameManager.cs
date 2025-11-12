@@ -5,6 +5,8 @@ public class SimGameManager : MonoBehaviour
 {
     public static SimGameManager Instance = null;
 
+    private bool isMainMenuActive = false;
+    
     public enum GameState
     {
         isPlaying,
@@ -31,6 +33,16 @@ public class SimGameManager : MonoBehaviour
     {
         currentState = GameState.isPlaying;
     }
+
+    public void SetMenuState(bool state)
+    {
+        isMainMenuActive = state;
+    }
+    public bool IsMainMenuActive()
+    {
+        return isMainMenuActive;
+    }
+
     public bool IsGamePlaying()
     {
         return currentState == GameState.isPlaying;

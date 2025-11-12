@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Shield : MonoBehaviour,IInteractable
 {
+    public ItemDataSO ItemData => throw new System.NotImplementedException();
 
     public void Interact()
     {

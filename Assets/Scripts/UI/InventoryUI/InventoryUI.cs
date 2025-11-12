@@ -50,7 +50,6 @@ public class InventoryUI : MonoBehaviour
     {
         InventoryVisual.gameObject.SetActive(true);
         SimGameManager.Instance.PauseGame();
-
     }
     public void Hide()
     {

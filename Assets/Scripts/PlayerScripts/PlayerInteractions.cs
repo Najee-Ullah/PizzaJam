@@ -18,6 +18,9 @@ public class PlayerInteractions : MonoBehaviour
     [Header("PlayerInventory")]
     [SerializeField] private Inventory playerInventory;
 
+    [Header("UI References")]
+    [SerializeField] private InteractionUI interactionUI;
+
     private LayerMask detectionMask;
     private int defaultLayer;
     private GameObject currentTarget;
@@ -48,8 +51,11 @@ public class PlayerInteractions : MonoBehaviour
 
     private void Update()
     {
-        if(SimGameManager.Instance.IsGamePlaying())
+        if (SimGameManager.Instance.IsGamePlaying())
+        {
             HandleInteractions();
+        }
+        HandleInteractionUI();
     }
 
     private void PlayerInventory_OnItemRemoved(object sender, Inventory.OnItemsChangedArgs e)
@@ -92,6 +98,45 @@ public class PlayerInteractions : MonoBehaviour
             ClearPreviousTarget();
         }
     }
+
+    private void HandleInteractionUI()
+    {
+        if (interactionUI != null)
+        {
+            if (currentTarget != null)
+            {
+                if (SimGameManager.Instance.IsGamePlaying())
+                    ShowInteractionUI();
+                else
+                    HideInteractionUI();
+            }
+            else
+            {
+                HideInteractionUI();
+
+            }
+        }
+    }
+    private void ShowInteractionUI()
+    {
+        if (currentTarget.TryGetComponent<IPickable>(out IPickable pickable))
+        {
+            interactionUI.Show();
+            interactionUI.ChangeText(pickable.ItemData.itemName);
+        }
+        else if (currentTarget.TryGetComponent<IInteractable>(out IInteractable interactable))
+        {
+            interactionUI.Show();
+            interactionUI.ChangeText(interactable.ItemData.itemName);
+        }
+
+    }
+    private void HideInteractionUI()
+    {
+            interactionUI.Hide();
+            interactionUI.ChangeText("");
+    }
+
     private void SetNewTarget(GameObject gameObj)
     {
         currentTarget = gameObj;
