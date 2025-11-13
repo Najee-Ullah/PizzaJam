@@ -15,5 +15,5 @@ MonoBehaviour:
   itemId: 1
   itemName: BoxA
   itemDescription: A wooden Box
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: 21300000, guid: cd5dd6c15649c064689eb8c349154012, type: 3}
   itemPrefab: {fileID: 3549260909511176562, guid: 2b5be78e04da7d4428360ea64a71eca4, type: 3}
