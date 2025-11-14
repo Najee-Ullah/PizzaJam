@@ -103,17 +103,20 @@ public class PlayerInteractions : MonoBehaviour
     {
         if (interactionUI != null)
         {
-            if (currentTarget != null)
+            if (SimGameManager.Instance.IsGamePlaying())
             {
-                if (SimGameManager.Instance.IsGamePlaying())
-                    ShowInteractionUI();
+                if (currentTarget != null)
+                {
+                    if (interactionUI.IsActive() == false)
+                        ShowInteractionUI();
+                }
                 else
                     HideInteractionUI();
             }
             else
             {
-                HideInteractionUI();
-
+                if (interactionUI.IsActive())
+                    HideInteractionUI();
             }
         }
     }

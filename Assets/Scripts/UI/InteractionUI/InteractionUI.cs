@@ -8,9 +8,11 @@ public class InteractionUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI promptText;
     [SerializeField] private TextMeshProUGUI promptButtonText;
 
+    private bool isActive { get { return Visual.activeSelf; } }
+
     private void Start()
     {
-        Hide();
+        Show();
         promptButtonText.text = InputHandler.Instance.GetInteractBindingString();
     }
 
@@ -26,5 +28,9 @@ public class InteractionUI : MonoBehaviour
     public void Hide()
     {
         Visual.SetActive(false);
+    }
+    public bool IsActive()
+    {
+        return isActive;
     }
 }

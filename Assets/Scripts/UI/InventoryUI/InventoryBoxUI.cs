@@ -6,6 +6,7 @@ using System;
 
 public class InventoryBoxUI : MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler
 {
+    [SerializeField] private Sprite defaultImage;
     [SerializeField] private Image iconImage;
     [SerializeField] private Transform ContextMenuAnchor;
     [SerializeField] private GameObject RightClickIcon;
@@ -37,7 +38,7 @@ public class InventoryBoxUI : MonoBehaviour,IPointerClickHandler,IPointerEnterHa
     public void ClearBox()
     {
         itemData = null;
-        if (iconImage != null) iconImage.sprite = null;
+        if (iconImage != null) iconImage.sprite = defaultImage;
     }
 
     public void OnPointerClick(PointerEventData eventData)
