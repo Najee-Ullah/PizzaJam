@@ -39,12 +39,10 @@ public class ItemCombineManager : MonoBehaviour
     {
         ResetCombine();
         firstItemSelected = firstItem;
-        Debug.Log("Combine Start");
     }
 
     public ItemDataSO CombineEnd(ItemDataSO item)
     {
-        Debug.Log("Combine End");
         if (firstItemSelected != null && item != firstItemSelected)
         {
             return TryCombine(firstItemSelected, item);
