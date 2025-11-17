@@ -12,7 +12,6 @@ public class InteractionUI : MonoBehaviour
 
     private void Start()
     {
-        Show();
         promptButtonText.text = InputHandler.Instance.GetInteractBindingString();
     }
 
